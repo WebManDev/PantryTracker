@@ -8,6 +8,7 @@ Features
 
 Inventory Management: Add, edit, and remove pantry items.
 Search Functionality: Quickly find items in your pantry.
+Installation
 
 Clone the Repository:
 bash
@@ -29,7 +30,7 @@ Usage
 
 Adding Items:
 Click on the "Add Item" button.
-Fill in the details such as item name and quantity
+Fill in the details such as item name and quantity.
 Removing Items:
 Click on the item you wish to remove.
-Click the "Remove" button to remove the item from your pantry. (Only One quantity at a time)
+Click the "Remove" button to remove the item from your pantry. (Only one quantity at a time)
