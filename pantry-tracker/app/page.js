@@ -18,7 +18,8 @@ export default function Home() {
     const docs = await getDocs(snapshot)
     const inventoryList = []
     docs.forEach((doc) => {
-      inventoryList.push({ name: doc.id, ...doc.data() })
+      const data = doc.data()
+      inventoryList.push({ name: doc.id, quantity: data.quantity ?? 0 })
     })
     setInventory(inventoryList)
   }
@@ -26,11 +27,12 @@ export default function Home() {
   const addItem = async (item, quantityToAdd) => {
     const docRef = doc(collection(firestore, 'inventory'), item)
     const docSnap = await getDoc(docRef)
-    const parsedQuantity = parseInt(quantityToAdd, 10) || 0;
-    if (parsedQuantity <= 0) return; // Avoid adding zero or negative quantities
+    const parsedQuantity = parseInt(quantityToAdd, 10)
+    if (isNaN(parsedQuantity) || parsedQuantity <= 0) return; // Avoid adding invalid quantities
     if (docSnap.exists()) {
       const { quantity } = docSnap.data()
-      await setDoc(docRef, { quantity: quantity + parsedQuantity }, { merge: true })
+      const newQuantity = isNaN(quantity) ? parsedQuantity : quantity + parsedQuantity
+      await setDoc(docRef, { quantity: newQuantity }, { merge: true })
     } else {
       await setDoc(docRef, { quantity: parsedQuantity }, { merge: true })
     }
@@ -42,10 +44,14 @@ export default function Home() {
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       const { quantity } = docSnap.data()
-      if (quantity === 1) {
+      const currentQuantity = parseInt(quantity, 10)
+
+      if (isNaN(currentQuantity)) {
+        await deleteDoc(docRef)
+      } else if (currentQuantity === 1) {
         await deleteDoc(docRef)
       } else {
-        await setDoc(docRef, { quantity: quantity - 1 }, { merge: true })
+        await setDoc(docRef, { quantity: currentQuantity - 1 }, { merge: true })
       }
     }
     await updateInventory()
@@ -83,7 +89,7 @@ export default function Home() {
       flexDirection={'column'}
       alignItems={'center'}
       gap={2}
-      bgcolor={'#f0f0f0'} // Set a light background color for the entire viewport
+      bgcolor={'#f0f0f0'}
     >
       <Modal
         open={open}
